@@ -22,6 +22,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [nextResetTime, setNextResetTime] = useState<Date | null>(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [analysisHistory, setAnalysisHistory] = useState<HistoryType[]>([]);
   const [retryCount, setRetryCount] = useState(0);
@@ -78,6 +79,27 @@ function App() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchNextResetTime = async () => {
+    if (!session?.user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_request_limits')
+        .select('last_reset_at')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (error) throw error;
+      if (data?.last_reset_at) {
+        const resetTime = new Date(data.last_reset_at);
+        resetTime.setHours(resetTime.getHours() + 24);
+        setNextResetTime(resetTime);
+      }
+    } catch (error) {
+      console.error('Error fetching next reset time:', error);
+    }
+  };
 
   const fetchAnalysisHistory = useCallback(async () => {
     if (!session?.user) return;
@@ -193,9 +215,12 @@ function App() {
         details = t('error.timeoutDetails');
       } else if (error.message.includes('Quota exceeded')) {
         errorMessage = t('error.quotaExceeded');
+        const hoursUntilReset = nextResetTime 
+          ? Math.ceil((nextResetTime.getTime() - Date.now()) / (1000 * 60 * 60))
+          : 24;
         details = isRecommendation 
-          ? t('error.advancedQuotaDetails', { limit: 3 })
-          : t('error.basicQuotaDetails', { limit: 10 });
+          ? t('error.advancedQuotaDetails', { limit: 3, hours: hoursUntilReset })
+          : t('error.basicQuotaDetails', { limit: 10, hours: hoursUntilReset });
       }
       
       setError(errorMessage);
