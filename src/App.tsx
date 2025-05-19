@@ -302,10 +302,12 @@ function App() {
         <div className="max-w-4xl mx-auto mt-4">
           {!searchResult && !recommendationResult && (
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <SearchBar 
+              <SearchBar
                 onSearch={handleSearch} 
                 isLoading={isLoading}
                 initialQuery={searchQuery}
+                isAuthenticated={!!session?.user}
+                onAuthRequired={() => setIsAuthModalOpen(true)}
               />
               
               {isLoading && <LoadingIndicator />}
