@@ -1,0 +1,99 @@
+{
+  "appName": "Worth It? Bot",
+  "appDescription": "Helping you make smart consumer decisions",
+  "modes": {
+    "analysis": "Analyze Product",
+    "recommendation": "Get Recommendations"
+  },
+  "recommendation": {
+    "hint": "Enter a product category, e.g., \"e-reader\", \"wireless earbuds\"",
+    "placeholder": "Enter product category...",
+    "resultsTitle": "Based on your needs, here are our recommendations:",
+    "resultsSubtitle": "These products match your requirements and are available in the market",
+    "keyConsiderationPrefix": "Important Note:",
+    "analyzeProductCTA": "View Detailed Analysis for {productName}",
+    "targetUser": "Who is this for? (Optional)",
+    "targetUserPlaceholder": "e.g., mom, 10-year-old kid, myself for sports",
+    "specificNeeds": "Key requirements? (Optional)",
+    "specificNeedsPlaceholder": "e.g., easy to use, eye protection, lightweight",
+    "title": "Recommended Products",
+    "priceRange": "Price Range",
+    "features": "Key Features"
+  },
+  "analysis": {
+    "placeholder": "Enter product name..."
+  },
+  "search": {
+    "analyze": "Analyze",
+    "recommend": "Find Best"
+  },
+  "filters": {
+    "price": "Price/Value",
+    "features": "Features",
+    "reviews": "Reviews",
+    "hint": "Click to filter analysis focus"
+  },
+  "filterHints": {
+    "price": "Focus on price analysis, value for money, and cost comparisons",
+    "features": "Emphasize product features, specifications, and functionality",
+    "reviews": "Highlight user experiences, ratings, and market reception"
+  },
+  "loading": {
+    "analyzing": "Analyzing...",
+    "collecting": "Collecting online reviews and related data"
+  },
+  "noResults": {
+    "message": "No results found for \"{query}\"",
+    "suggestion": "Try other product names, such as: iPhone 15, AirPods Pro 2"
+  },
+  "searchPrompt": {
+    "message": "Enter a product name to get a professional analysis report",
+    "examples": {
+      "title": "Popular searches"
+    }
+  },
+  "analysis": {
+    "overview": "Overview",
+    "pros": "Key Pros",
+    "cons": "Key Cons",
+    "marketSentiment": "Market Sentiment",
+    "bestFor": "Best For",
+    "considerations": "Considerations",
+    "comparableProducts": "Similar Products to Consider",
+    "priceRange": "Price Range",
+    "backToSearch": "Back to Search",
+    "details": "Product Details",
+    "analyze": "Analyze This"
+  },
+  "error": {
+    "analysis": "Failed to analyze product.",
+    "apiKey": "System is temporarily unavailable.",
+    "rateLimit": "Too many requests. Please try again later.",
+    "unauthorized": "Unauthorized access.",
+    "contactSupport": "Please contact support.",
+    "tryAgainLater": "Please try again later.",
+    "checkCredentials": "Please check your account status."
+  },
+  "footer": {
+    "copyright": "© 2025 Worth It? Bot - Helping you make smart consumer decisions"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "description": "Sign in to save your analysis history and get personalized recommendations",
+    "email": "Email address",
+    "emailPlaceholder": "Enter your email",
+    "continue": "Continue with Email",
+    "sending": "Sending...",
+    "checkEmail": "Check your email for the login link",
+    "error": "Failed to send login link. Please try again."
+  },
+  "user": {
+    "history": "Analysis History",
+    "signOut": "Sign Out"
+  },
+  "history": {
+    "title": "Analysis History",
+    "empty": "No analysis history yet",
+    "analyze": "Analyze Again"
+  }
+}

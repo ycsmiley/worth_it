@@ -1,0 +1,99 @@
+{
+  "appName": "值不值 Bot",
+  "appDescription": "協助您快速做出明智的消費決策",
+  "modes": {
+    "analysis": "產品分析",
+    "recommendation": "推薦商品"
+  },
+  "recommendation": {
+    "hint": "輸入產品類別，例如：「電子閱讀器」、「無線耳機」",
+    "placeholder": "請輸入產品類別...",
+    "resultsTitle": "根據您的需求，我們推薦以下產品：",
+    "resultsSubtitle": "這些產品都符合您的要求，且目前市面上可以購買",
+    "keyConsiderationPrefix": "溫馨提醒：",
+    "analyzeProductCTA": "查看「{productName}」的詳細分析",
+    "targetUser": "這是為誰準備的？（選填）",
+    "targetUserPlaceholder": "例如：媽媽、10歲小孩、自己運動用",
+    "specificNeeds": "最重視的需求是？（選填）",
+    "specificNeedsPlaceholder": "例如：操作簡單、護眼、輕巧、續航力強",
+    "title": "推薦商品",
+    "priceRange": "參考價格",
+    "features": "主要特色"
+  },
+  "analysis": {
+    "placeholder": "請輸入產品名稱..."
+  },
+  "search": {
+    "analyze": "分析",
+    "recommend": "找推薦"
+  },
+  "filters": {
+    "price": "價格/CP值",
+    "features": "功能體驗",
+    "reviews": "使用者評價",
+    "hint": "點擊以篩選分析重點"
+  },
+  "filterHints": {
+    "price": "著重於價格分析、性價比和成本比較",
+    "features": "強調產品功能、規格和使用體驗",
+    "reviews": "突顯使用者經驗、評分和市場反應"
+  },
+  "loading": {
+    "analyzing": "分析中...",
+    "collecting": "搜集網路評價並整理相關資料"
+  },
+  "noResults": {
+    "message": "無法找到與 \"{query}\" 相關的產品",
+    "suggestion": "請嘗試其他產品名稱，例如：iPhone 15、AirPods Pro 2"
+  },
+  "searchPrompt": {
+    "message": "立即輸入產品名稱，獲取專業分析報告",
+    "examples": {
+      "title": "熱門搜尋"
+    }
+  },
+  "analysis": {
+    "overview": "概述",
+    "pros": "主要優點",
+    "cons": "主要缺點",
+    "marketSentiment": "市場評價",
+    "bestFor": "最適合族群",
+    "considerations": "建議考慮因素",
+    "comparableProducts": "值得參考的同類產品",
+    "priceRange": "價格範圍",
+    "backToSearch": "返回搜尋",
+    "details": "產品詳情",
+    "analyze": "分析此產品"
+  },
+  "error": {
+    "analysis": "產品分析失敗。",
+    "apiKey": "系統暫時無法使用。",
+    "rateLimit": "請求次數過多，請稍後再試。",
+    "unauthorized": "存取未經授權。",
+    "contactSupport": "請聯絡客服支援。",
+    "tryAgainLater": "請稍後再試。",
+    "checkCredentials": "請確認您的帳號狀態。"
+  },
+  "footer": {
+    "copyright": "© 2025 值不值 Bot - 協助您做出明智的消費決策"
+  },
+  "auth": {
+    "signIn": "登入",
+    "description": "登入以儲存分析記錄並獲得個人化推薦",
+    "email": "電子郵件",
+    "emailPlaceholder": "請輸入您的電子郵件",
+    "continue": "使用電子郵件繼續",
+    "sending": "發送中...",
+    "checkEmail": "請查看您的電子郵件以取得登入連結",
+    "error": "發送登入連結失敗，請重試。"
+  },
+  "user": {
+    "history": "分析記錄",
+    "signOut": "登出"
+  },
+  "history": {
+    "title": "分析記錄",
+    "empty": "尚無分析記錄",
+    "analyze": "重新分析"
+  }
+}
