@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Search, Calendar, Eye, RotateCw } from 'lucide-react';
+import { X, Calendar, Eye, RotateCw, Tag, Star, DollarSign } from 'lucide-react';
 import { AnalysisHistory as HistoryType } from '../types/types';
 import AnalysisResult from './AnalysisResult';
 import RecommendationResult from './RecommendationResult';
@@ -15,6 +15,7 @@ interface AnalysisHistoryProps {
 const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({ history, onClose, onAnalyze }) => {
   const { t } = useTranslation();
   const [selectedItem, setSelectedItem] = useState<HistoryType | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString(undefined, {
@@ -23,6 +24,17 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({ history, onClose, onA
       day: 'numeric',
     });
   };
+
+  const getSentimentColor = (score: number): string => {
+    if (score >= 8.5) return 'bg-green-100 text-green-700';
+    if (score >= 7) return 'bg-yellow-100 text-yellow-700';
+    return 'bg-red-100 text-red-700';
+  };
+
+  const filteredHistory = history.filter(item =>
+    item.result.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.result.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -36,31 +48,70 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({ history, onClose, onA
 
         <h2 className="text-2xl font-bold mb-6">{t('history.title')}</h2>
 
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder={t('history.searchPlaceholder')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
         <div className="flex-grow overflow-y-auto relative">
-          {history.length === 0 ? (
+          {filteredHistory.length === 0 ? (
             <div className="text-center text-gray-500 py-8">
-              {t('history.empty')}
+              {history.length === 0 ? t('history.empty') : t('history.noResults')}
             </div>
           ) : (
             <div className="space-y-4">
-              {history.map((item) => (
+              {filteredHistory.map((item) => (
                 <div
                   key={item.id}
                   className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-medium text-lg">{item.result.name}</h3>
-                      <p className="text-gray-600 text-sm mt-1">{item.result.overview}</p>
-                      <div className="flex items-center text-gray-500 text-sm mt-2">
+                    <div className="flex-grow">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                          {item.result.category}
+                        </span>
+                        {item.filter && (
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-600">
+                            {t(`filters.${item.filter}`)}
+                          </span>
+                        )}
+                      </div>
+                      
+                      <h3 className="font-medium text-lg text-gray-900">{item.result.name}</h3>
+                      
+                      <div className="flex items-center gap-4 mt-2">
+                        {item.result.marketSentiment && (
+                          <div className={`inline-flex items-center px-2 py-1 rounded-md text-sm ${getSentimentColor(item.result.marketSentiment.score)}`}>
+                            <Star className="h-4 w-4 mr-1" />
+                            {item.result.marketSentiment.score}
+                          </div>
+                        )}
+                        {item.result.priceRange && (
+                          <div className="inline-flex items-center text-sm text-gray-600">
+                            <DollarSign className="h-4 w-4 mr-1" />
+                            {item.result.priceRange}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <p className="text-gray-600 text-sm mt-2 line-clamp-2">{item.result.overview}</p>
+                      
+                      <div className="flex items-center text-gray-500 text-sm mt-3">
                         <Calendar className="h-4 w-4 mr-1" />
                         {formatDate(item.created_at)}
                       </div>
                     </div>
+                    
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => setSelectedItem(item)}
-                        className="flex items-center px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                        className="flex items-center px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
                       >
                         <Eye className="h-4 w-4 mr-1" />
                         <span className="text-sm">{t('history.quickView')}</span>

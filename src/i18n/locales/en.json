@@ -100,6 +100,8 @@
   "history": {
     "title": "Analysis History",
     "empty": "No analysis history yet",
+    "noResults": "No matching records found",
+    "searchPlaceholder": "Search by product name or category...",
     "reanalyze": "Analyze Again",
     "quickView": "Quick View"
   }

@@ -100,6 +100,8 @@
   "history": {
     "title": "分析記錄",
     "empty": "尚無分析記錄",
+    "noResults": "找不到符合的記錄",
+    "searchPlaceholder": "搜尋產品名稱或類別...",
     "reanalyze": "重新分析",
     "quickView": "快速查看"
   }
