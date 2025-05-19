@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Search, Calendar, Eye, RotateCw } from 'lucide-react';
 import { AnalysisHistory as HistoryType } from '../types/types';
