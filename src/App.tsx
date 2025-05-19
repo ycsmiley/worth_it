@@ -24,16 +24,15 @@ function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [analysisHistory, setAnalysisHistory] = useState<HistoryType[]>([]);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 2;
 
-  // Handle initial session and auth state changes
   useEffect(() => {
-    // Check for auth callback
     const handleAuthCallback = async () => {
       if (window.location.hash || window.location.search.includes('code=')) {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (!error && session) {
           setSession(session);
-          // Remove hash from URL
           const cleanUrl = window.location.href.split('#')[0].split('?')[0];
           window.history.replaceState({}, document.title, cleanUrl);
         }
@@ -78,7 +77,7 @@ function App() {
   }, [session?.user, fetchAnalysisHistory]);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
 
-  const handleSearch = async (query: string, filter: FilterTag = null, isRecommendation = false) => {
+  const handleSearch = async (query: string, filter: FilterTag = null, isRecommendation = false, currentRetry = 0) => {
     setSearchQuery(query);
     setActiveFilter(filter);
     setIsLoading(true);
@@ -86,6 +85,7 @@ function App() {
     setErrorDetails(null);
     setSearchResult(null);
     setRecommendationResult(null);
+    setRetryCount(currentRetry);
 
     try {
       console.log('Calling Edge Function...');
@@ -99,7 +99,7 @@ function App() {
         body: JSON.stringify({ 
           query, 
           filter,
-          language: i18n.language.split('-')[0].toLowerCase(), // Ensure we only send the base language code
+          language: i18n.language.split('-')[0].toLowerCase(),
           type: isRecommendation ? 'recommendation_v2' : 'analysis'
         }),
       });
@@ -137,6 +137,20 @@ function App() {
       }
     } catch (error) {
       console.error('Search error:', error);
+      
+      if (error.message.includes('timed out') && currentRetry < MAX_RETRIES) {
+        const nextRetry = currentRetry + 1;
+        const retryDelay = 1000 * Math.pow(2, currentRetry);
+        
+        setError(t('error.retrying', { attempt: nextRetry, maxAttempts: MAX_RETRIES }));
+        
+        setTimeout(() => {
+          handleSearch(query, filter, isRecommendation, nextRetry);
+        }, retryDelay);
+        
+        return;
+      }
+      
       let errorMessage = t('error.analysis');
       let details = null;
       
@@ -149,6 +163,9 @@ function App() {
       } else if (error.message.includes('unauthorized')) {
         errorMessage = t('error.unauthorized');
         details = t('error.checkCredentials');
+      } else if (error.message.includes('timed out')) {
+        errorMessage = t('error.timeout');
+        details = t('error.timeoutDetails');
       }
       
       setError(errorMessage);

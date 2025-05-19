@@ -12,6 +12,8 @@ interface ComparableProduct {
   name: string;
   keyDifferenceOrBenefit: string;
   approxPriceRange?: string;
+  targetAudience?: string;
+  uniqueSellingPoint?: string;
 }
 
 interface ProductAnalysis {
@@ -32,6 +34,15 @@ interface ProductAnalysis {
   comparableProducts?: ComparableProduct[];
 }
 
+interface Recommendation {
+  productName: string;
+  category: string;
+  keyFeatures: string[];
+  approxPriceNTD: string;
+  reasonWhySuitable: string;
+  keyConsideration: string;
+}
+
 interface RecommendationResponse {
   queryType: 'recommendation_v1' | 'recommendation_v2';
   originalQueryDetails?: {
@@ -50,7 +61,9 @@ const corsHeaders = {
 
 const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY") || "";
 const MAX_QUERY_LENGTH = 500;
-const PERPLEXITY_TIMEOUT = 30000; // 30 seconds timeout
+const PERPLEXITY_TIMEOUT = 60000; // Increased to 60 seconds
+const MAX_RETRIES = 2; // Maximum number of retries
+const INITIAL_RETRY_DELAY = 1000; // Initial retry delay in milliseconds
 const CACHE_DURATION = 7 * 24 * 60 * 60; // 7 days in seconds
 
 // Simple in-memory cache
@@ -125,7 +138,7 @@ function getFilterPrompt(filter: string | string[] | null, language: SupportedLa
   return `Please focus particularly on: ${filterTexts.join(", ")}.`;
 }
 
-async function queryPerplexity(query: string, filter: string | string[] | null, language: string, type: 'analysis' | 'recommendation'): Promise<PerplexityResponse> {
+async function queryPerplexity(query: string, filter: string | string[] | null, language: string, type: 'analysis' | 'recommendation', retryCount = 0): Promise<PerplexityResponse> {
   try {
     if (!query.trim()) {
       throw new Error("Query cannot be empty");
@@ -137,7 +150,8 @@ async function queryPerplexity(query: string, filter: string | string[] | null, 
     console.log("Querying Perplexity API with:", { 
       query: sanitizedQuery,
       language: normalizedLanguage,
-      queryLength: sanitizedQuery.length 
+      queryLength: sanitizedQuery.length,
+      retryCount 
     });
     
     const filterPrompt = getFilterPrompt(filter, normalizedLanguage);
@@ -313,8 +327,17 @@ ${filterPrompt}`;
     }
   } catch (error) {
     console.error("Error in queryPerplexity:", error);
+    
+    // Implement retry logic with exponential backoff
+    if (error.name === 'AbortError' && retryCount < MAX_RETRIES) {
+      const retryDelay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+      console.log(`Retrying after ${retryDelay}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+      return queryPerplexity(query, filter, language, type, retryCount + 1);
+    }
+    
     if (error.name === 'AbortError') {
-      throw new Error('Request timed out after 30 seconds');
+      throw new Error(`Request timed out after ${PERPLEXITY_TIMEOUT / 1000} seconds. Please try again.`);
     }
     throw error;
   }
