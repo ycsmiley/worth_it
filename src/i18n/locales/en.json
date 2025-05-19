@@ -1,6 +1,6 @@
 {
   "appName": "Worth It? Bot",
-  "appDescription": "Helping you make smart consumer decisions",
+  "appDescription": "Helping you make smart consumer decisions. Sign in to start analyzing!",
   "modes": {
     "analysis": "Analyze Product",
     "recommendation": "Get Recommendations"
@@ -88,6 +88,7 @@
   },
   "auth": {
     "signIn": "Sign in",
+    "requiredMessage": "Sign in to analyze products and get personalized recommendations",
     "description": "Sign in to save your analysis history and get personalized recommendations",
     "email": "Email address",
     "emailPlaceholder": "Enter your email",

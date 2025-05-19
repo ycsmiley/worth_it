@@ -9,10 +9,18 @@ interface SearchBarProps {
   onSearch: (query: string, filter: FilterTag, isRecommendation: boolean) => void;
   isLoading: boolean;
   isAuthenticated: boolean;
+  onAuthRequired: () => void;
+  isAuthenticated: boolean;
   initialQuery?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, isAuthenticated, initialQuery = '' }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ 
+  onSearch, 
+  isLoading, 
+  isAuthenticated, 
+  onAuthRequired,
+  initialQuery = '' 
+}) => {
   const { t } = useTranslation();
   const [query, setQuery] = useState(initialQuery);
   const [targetUser, setTargetUser] = useState('');
@@ -28,6 +36,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, isAuthentica
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
+      if (!isAuthenticated) {
+        onAuthRequired();
+        return;
+      }
+      
       // 構建更自然的查詢語句
       const parts = [];
       parts.push(query.trim());
@@ -164,11 +177,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, isAuthentica
           <button
             type="submit"
             className={`absolute right-2 px-4 py-1 rounded-md ${
-              isRecommendationMode ? 'bg-purple-500 hover:bg-purple-600' : 'bg-blue-500 hover:bg-blue-600'
+              isRecommendationMode 
+                ? 'bg-purple-500 hover:bg-purple-600' 
+                : 'bg-blue-500 hover:bg-blue-600'
             } text-white ${
-              isLoading || !isAuthenticated ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-600'
+              isLoading || !query.trim() ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-600'
             } transition-colors`}
-            disabled={isLoading || !query.trim() || !isAuthenticated}
+            disabled={isLoading || !query.trim()}
           >
             {isLoading ? t('loading.analyzing') : isRecommendationMode ? t('search.recommend') : t('search.analyze')}
           </button>

@@ -1,6 +1,6 @@
 {
   "appName": "值不值 Bot",
-  "appDescription": "協助您快速做出明智的消費決策",
+  "appDescription": "協助您快速做出明智的消費決策。登入即可開始分析！",
   "modes": {
     "analysis": "產品分析",
     "recommendation": "推薦商品"
@@ -88,6 +88,7 @@
   },
   "auth": {
     "signIn": "登入",
+    "requiredMessage": "登入以分析產品並獲得個人化推薦",
     "description": "登入以儲存分析記錄並獲得個人化推薦",
     "email": "電子郵件",
     "emailPlaceholder": "請輸入您的電子郵件",
