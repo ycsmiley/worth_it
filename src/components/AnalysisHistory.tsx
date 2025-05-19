@@ -56,25 +56,25 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({ history, onClose, onA
                         {formatDate(item.created_at)}
                       </div>
                     </div>
-                    <button
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => setSelectedItem(item)}
-                      className="flex items-center px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{t('history.quickView')}</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        onAnalyze(item.query);
-                        onClose();
-                      }}
-                      className="flex items-center px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition-colors"
-                    >
-                      <RotateCw className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{t('history.reanalyze')}</span>
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setSelectedItem(item)}
+                        className="flex items-center px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        <span className="text-sm">{t('history.quickView')}</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          onAnalyze(item.query);
+                          onClose();
+                        }}
+                        className="flex items-center px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition-colors"
+                      >
+                        <RotateCw className="h-4 w-4 mr-1" />
+                        <span className="text-sm">{t('history.reanalyze')}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
