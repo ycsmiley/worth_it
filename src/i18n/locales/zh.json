@@ -94,6 +94,7 @@
   "history": {
     "title": "分析記錄",
     "empty": "尚無分析記錄",
-    "analyze": "重新分析"
+    "reanalyze": "重新分析",
+    "quickView": "快速查看"
   }
 }

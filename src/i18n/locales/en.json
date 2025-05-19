@@ -94,6 +94,7 @@
   "history": {
     "title": "Analysis History",
     "empty": "No analysis history yet",
-    "analyze": "Analyze Again"
+    "reanalyze": "Analyze Again",
+    "quickView": "Quick View"
   }
 }
