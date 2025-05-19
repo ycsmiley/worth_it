@@ -118,7 +118,7 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ product, onReset, onSea
   const renderComparablesTab = () => (
     <div className="space-y-6 animate-fadeIn">
       <div className="text-center text-gray-600">
-        <h3 className="text-xl font-semibold mb-2">{t('analysis.comparingWith', { product: product.name })}</h3>
+        <h3 className="text-xl font-semibold mb-2">{t('analysis.comparableProducts')}</h3>
         <p className="text-sm">{t('analysis.comparisonHint')}</p>
       </div>
       {product.comparableProducts && product.comparableProducts.map((comparable, index) => (
