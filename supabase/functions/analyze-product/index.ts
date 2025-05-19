@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.39.7";
+import { createServerClient } from 'npm:@supabase/ssr@0.1.0';
 
 interface PerplexityResponse {
   choices: Array<{
@@ -56,7 +57,7 @@ interface RecommendationResponse {
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept-Language",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept-Language"
 };
 
 const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY") || "";
@@ -644,17 +645,65 @@ function processAnalysisJson(jsonData: any): ProductAnalysis {
   return analysis;
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+async function checkRequestLimit(userId: string, isAdvanced: boolean): Promise<boolean> {
+  const { data, error } = await supabase.rpc('increment_request_count', {
+    p_user_id: userId,
+    p_is_advanced: isAdvanced
+  });
+
+  if (error) {
+    console.error('Error checking request limit:', error);
+    return false;
   }
 
+  return data;
+}
+
+Deno.serve(async (req) => {
   try {
+    if (req.method === "OPTIONS") {
+      return new Response(null, { headers: corsHeaders });
+    }
+
     if (!PERPLEXITY_API_KEY) {
       throw new Error("Perplexity API key not configured");
     }
 
     const { query, filter, language, type } = await req.json();
+    
+    // Get user from auth header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized', details: 'Please sign in to continue' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized', details: 'Invalid credentials' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check request limits
+    const isAdvanced = type === 'recommendation';
+    const hasQuota = await checkRequestLimit(user.id, isAdvanced);
+
+    if (!hasQuota) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Quota exceeded', 
+          details: isAdvanced ? 'Advanced request quota exceeded' : 'Basic request quota exceeded'
+        }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     console.log("Received request:", { 
       query: typeof query === 'string' ? query : 'Invalid query',
       filter: filter || 'none',
@@ -737,11 +786,3 @@ Deno.serve(async (req) => {
       JSON.stringify(errorResponse),
       {
         status,
-        headers: {
-          "Content-Type": "application/json",
-          ...corsHeaders,
-        },
-      }
-    );
-  }
-});

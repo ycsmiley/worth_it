@@ -74,6 +74,9 @@
   "error": {
     "analysis": "Failed to analyze product.",
     "apiKey": "System is temporarily unavailable.",
+    "quotaExceeded": "Request quota exceeded.",
+    "basicQuotaDetails": "You have used all {{limit}} basic requests for this period.",
+    "advancedQuotaDetails": "You have used all {{limit}} advanced requests for this period.",
     "rateLimit": "Too many requests. Please try again later.",
     "unauthorized": "Unauthorized access.",
     "contactSupport": "Please contact support.",
@@ -86,7 +89,6 @@
   "auth": {
     "signIn": "Sign in",
     "description": "Sign in to save your analysis history and get personalized recommendations",
-    "requiredMessage": "Please sign in to analyze products",
     "email": "Email address",
     "emailPlaceholder": "Enter your email",
     "continue": "Continue with Email",
@@ -105,5 +107,9 @@
     "searchPlaceholder": "Search by product name or category...",
     "reanalyze": "Analyze Again",
     "quickView": "Quick View"
+  },
+  "limits": {
+    "basic": "Basic: {{used}}/{{total}}",
+    "advanced": "Advanced: {{used}}/{{total}}"
   }
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
 import SearchBar from './components/SearchBar';
 import LoadingIndicator from './components/LoadingIndicator';
 import AnalysisResult from './components/AnalysisResult';
@@ -25,8 +26,32 @@ function App() {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [analysisHistory, setAnalysisHistory] = useState<HistoryType[]>([]);
   const [retryCount, setRetryCount] = useState(0);
-  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [requestLimits, setRequestLimits] = useState<{
+    basic_requests_used: number;
+    advanced_requests_used: number;
+  } | null>(null);
   const MAX_RETRIES = 2;
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchRequestLimits();
+    }
+  }, [session?.user]);
+
+  const fetchRequestLimits = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_request_limits')
+        .select('basic_requests_used, advanced_requests_used')
+        .eq('user_id', session?.user?.id)
+        .single();
+
+      if (error) throw error;
+      setRequestLimits(data);
+    } catch (error) {
+      console.error('Error fetching request limits:', error);
+    }
+  };
 
   useEffect(() => {
     const handleAuthCallback = async () => {
@@ -79,11 +104,6 @@ function App() {
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
 
   const handleSearch = async (query: string, filter: FilterTag = null, isRecommendation = false, currentRetry = 0) => {
-    if (!session?.user) {
-      setIsAuthModalOpen(true);
-      return;
-    }
-    
     setSearchQuery(query);
     setActiveFilter(filter);
     setIsLoading(true);
@@ -172,6 +192,11 @@ function App() {
       } else if (error.message.includes('timed out')) {
         errorMessage = t('error.timeout');
         details = t('error.timeoutDetails');
+      } else if (error.message.includes('Quota exceeded')) {
+        errorMessage = t('error.quotaExceeded');
+        details = isRecommendation 
+          ? t('error.advancedQuotaDetails', { limit: 3 })
+          : t('error.basicQuotaDetails', { limit: 10 });
       }
       
       setError(errorMessage);
@@ -225,15 +250,33 @@ function App() {
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <button 
-              onClick={resetSearch}
-              className="flex items-center hover:opacity-80 transition-opacity"
-            >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-300 to-yellow-400 flex items-center justify-center mr-2 shadow-sm">
-                <span className="text-yellow-800 font-bold text-lg">☺</span>
-              </div>
-              <h1 className="text-xl font-bold">{t('appName')}</h1>
-            </button>
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={resetSearch}
+                className="flex items-center hover:opacity-80 transition-opacity"
+              >
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-300 to-yellow-400 flex items-center justify-center mr-2 shadow-sm">
+                  <span className="text-yellow-800 font-bold text-lg">☺</span>
+                </div>
+                <h1 className="text-xl font-bold">{t('appName')}</h1>
+              </button>
+              {session?.user && requestLimits && (
+                <div className="text-sm text-gray-600">
+                  <span className="mr-4">
+                    {t('limits.basic', { 
+                      used: requestLimits.basic_requests_used,
+                      total: 10 
+                    })}
+                  </span>
+                  <span>
+                    {t('limits.advanced', { 
+                      used: requestLimits.advanced_requests_used,
+                      total: 3 
+                    })}
+                  </span>
+                </div>
+              )}
+            </div>
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
               {session?.user ? (
@@ -258,12 +301,11 @@ function App() {
       <main className="flex-grow container mx-auto px-4 py-6">
         <div className="max-w-4xl mx-auto mt-4">
           {!searchResult && !recommendationResult && (
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6 relative">
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <SearchBar 
                 onSearch={handleSearch} 
                 isLoading={isLoading}
                 initialQuery={searchQuery}
-                isAuthenticated={!!session?.user}
               />
               
               {isLoading && <LoadingIndicator />}
