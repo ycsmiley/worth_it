@@ -74,9 +74,9 @@
   "error": {
     "analysis": "產品分析失敗。",
     "apiKey": "系統暫時無法使用。",
-    "quotaExceeded": "已達到請求上限。",
-    "basicQuotaDetails": "您已使用完本期的 {{limit}} 次基本分析額度。",
-    "advancedQuotaDetails": "您已使用完本期的 {{limit}} 次進階分析額度。",
+    "quotaExceeded": "已達到今日使用上限",
+    "basicQuotaDetails": "您已使用完今日 {{limit}} 次基本分析額度，將於 {{hours}} 小時後重置。",
+    "advancedQuotaDetails": "您已使用完今日 {{limit}} 次推薦額度，將於 {{hours}} 小時後重置。",
     "rateLimit": "請求次數過多，請稍後再試。",
     "unauthorized": "存取未經授權。",
     "contactSupport": "請聯絡客服支援。",
@@ -89,6 +89,7 @@
   "auth": {
     "signIn": "登入",
     "requiredMessage": "登入以分析產品並獲得個人化推薦",
+    "tryDemo": "不用登入也可以試試用「{{product}}」體驗看看",
     "description": "登入以儲存分析記錄並獲得個人化推薦",
     "email": "電子郵件",
     "emailPlaceholder": "請輸入您的電子郵件",

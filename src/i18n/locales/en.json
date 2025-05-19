@@ -74,9 +74,9 @@
   "error": {
     "analysis": "Failed to analyze product.",
     "apiKey": "System is temporarily unavailable.",
-    "quotaExceeded": "Request quota exceeded.",
-    "basicQuotaDetails": "You have used all {{limit}} basic requests for this period.",
-    "advancedQuotaDetails": "You have used all {{limit}} advanced requests for this period.",
+    "quotaExceeded": "Daily request limit reached",
+    "basicQuotaDetails": "You have used all {{limit}} basic analysis requests for today. Your limit will reset in {{hours}} hours.",
+    "advancedQuotaDetails": "You have used all {{limit}} recommendation requests for today. Your limit will reset in {{hours}} hours.",
     "rateLimit": "Too many requests. Please try again later.",
     "unauthorized": "Unauthorized access.",
     "contactSupport": "Please contact support.",
@@ -89,6 +89,7 @@
   "auth": {
     "signIn": "Sign in",
     "requiredMessage": "Sign in to analyze products and get personalized recommendations",
+    "tryDemo": "Try a demo analysis with \"{{product}}\" without signing in",
     "description": "Sign in to save your analysis history and get personalized recommendations",
     "email": "Email address",
     "emailPlaceholder": "Enter your email",

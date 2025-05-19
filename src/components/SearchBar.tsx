@@ -36,7 +36,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
-      if (!isAuthenticated) {
+      if (!isAuthenticated && !query.trim().toLowerCase().includes('iphone')) {
         onAuthRequired();
         return;
       }
@@ -79,9 +79,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
   return (
     <div className="w-full max-w-2xl mx-auto">
       <h1 className="text-3xl font-bold text-center mb-2">{t('appName')}</h1>
-      <p className="text-gray-600 text-center mb-4">
-        {isAuthenticated ? t('appDescription') : t('auth.requiredMessage')}
-      </p>
+      {!isAuthenticated && (
+        <div className="text-center mb-4">
+          <p className="text-gray-600">{t('auth.requiredMessage')}</p>
+          <p className="text-sm text-gray-500 mt-1">
+            {t('auth.tryDemo', { product: 'iPhone 15' })}
+          </p>
+        </div>
+      )}
       
       <div className="flex justify-center mb-4">
         <button
