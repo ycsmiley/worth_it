@@ -66,6 +66,136 @@ const MAX_RETRIES = 2; // Maximum number of retries
 const INITIAL_RETRY_DELAY = 1000; // Initial retry delay in milliseconds
 const CACHE_DURATION = 7 * 24 * 60 * 60; // 7 days in seconds
 
+interface QueryInfo {
+  category: string;
+  targetUser: string;
+  specificNeeds: string[];
+  priceRange: string | null;
+  keywords: string[];
+}
+
+const CATEGORY_KEYWORDS = {
+  zh: {
+    tech: ['手機', '電腦', '筆電', '平板', '耳機', '相機', '智慧手錶', '電子書閱讀器'],
+    home: ['家電', '冰箱', '洗衣機', '電視', '空氣清淨機', '吸塵器', '咖啡機'],
+    beauty: ['保養品', '化妝品', '面霜', '精華', '洗面乳', '防曬'],
+    lifestyle: ['運動', '健身', '瑜珈', '按摩', '紓壓'],
+    subscription: ['訂閱', '會員', '方案', '服務']
+  },
+  en: {
+    tech: ['phone', 'computer', 'laptop', 'tablet', 'headphone', 'camera', 'smartwatch', 'e-reader'],
+    home: ['appliance', 'refrigerator', 'washer', 'tv', 'purifier', 'vacuum', 'coffee'],
+    beauty: ['skincare', 'cosmetic', 'cream', 'serum', 'cleanser', 'sunscreen'],
+    lifestyle: ['fitness', 'exercise', 'yoga', 'massage', 'wellness'],
+    subscription: ['subscription', 'membership', 'plan', 'service']
+  }
+};
+
+const USER_INDICATORS = {
+  zh: {
+    elderly: ['長輩', '老人', '年長者', '父母'],
+    kids: ['小孩', '兒童', '學生', '青少年'],
+    professional: ['專業', '工作者', '上班族'],
+    specific: ['敏感肌', '運動', '通勤', '居家']
+  },
+  en: {
+    elderly: ['elderly', 'senior', 'parents', 'older'],
+    kids: ['kids', 'children', 'students', 'teens'],
+    professional: ['professional', 'worker', 'office'],
+    specific: ['sensitive skin', 'sports', 'commute', 'home']
+  }
+};
+
+const NEED_KEYWORDS = {
+  zh: {
+    usability: ['簡單', '易用', '方便', '直覺'],
+    performance: ['效能', '速度', '續航', '電池'],
+    quality: ['品質', '耐用', '穩定', '可靠'],
+    price: ['便宜', '划算', '經濟', '預算'],
+    feature: ['功能', '特色', '創新', '智慧']
+  },
+  en: {
+    usability: ['simple', 'easy', 'convenient', 'intuitive'],
+    performance: ['performance', 'speed', 'battery', 'power'],
+    quality: ['quality', 'durable', 'stable', 'reliable'],
+    price: ['cheap', 'affordable', 'budget', 'economic'],
+    feature: ['feature', 'special', 'innovative', 'smart']
+  }
+};
+
+function extractPriceRange(text: string, language: SupportedLanguage): string | null {
+  const zhPricePattern = /(?:預算|價格)?(?:在|約)?(\d+(?:,\d{3})*)\s*(?:元|塊|NT\$|NTD)?(?:以[內下]|左右)?/;
+  const enPricePattern = /(?:budget|price|under|around|about)?\s*(?:NT\$|NTD|TWD)?\s*(\d+(?:,\d{3})*)/i;
+  
+  const pattern = language === 'zh' ? zhPricePattern : enPricePattern;
+  const match = text.match(pattern);
+  
+  if (match) {
+    const amount = parseInt(match[1].replace(/,/g, ''));
+    return `NT$${amount.toLocaleString()}`;
+  }
+  
+  return null;
+}
+
+function extractQueryInfo(query: string, language: SupportedLanguage): QueryInfo {
+  const words = query.toLowerCase().split(/[\s,，、]+/);
+  const categoryKeywords = CATEGORY_KEYWORDS[language];
+  const userIndicators = USER_INDICATORS[language];
+  const needKeywords = NEED_KEYWORDS[language];
+  
+  let category = '';
+  let targetUser = '';
+  const specificNeeds: string[] = [];
+  const keywords: string[] = [];
+  
+  // Find category
+  for (const [cat, keywords] of Object.entries(categoryKeywords)) {
+    if (keywords.some(keyword => query.toLowerCase().includes(keyword))) {
+      category = cat;
+      break;
+    }
+  }
+  
+  // Find target user
+  for (const [userType, indicators] of Object.entries(userIndicators)) {
+    if (indicators.some(indicator => query.toLowerCase().includes(indicator))) {
+      targetUser = userType;
+      break;
+    }
+  }
+  
+  // Extract needs
+  for (const [needType, indicators] of Object.entries(needKeywords)) {
+    if (indicators.some(indicator => query.toLowerCase().includes(indicator))) {
+      specificNeeds.push(needType);
+    }
+  }
+  
+  // Extract price range
+  const priceRange = extractPriceRange(query, language);
+  
+  // Extract meaningful keywords
+  const stopwords = language === 'zh' 
+    ? ['的', '和', '與', '在', '是', '能', '可以', '要', '想要', '需要']
+    : ['the', 'and', 'with', 'for', 'that', 'can', 'will', 'want', 'need'];
+  
+  keywords.push(...words.filter(word => 
+    word.length > 1 && 
+    !stopwords.includes(word) &&
+    !Object.values(categoryKeywords).flat().includes(word) &&
+    !Object.values(userIndicators).flat().includes(word) &&
+    !Object.values(needKeywords).flat().includes(word)
+  ));
+
+  return {
+    category: category || 'general',
+    targetUser: targetUser || '',
+    specificNeeds,
+    priceRange,
+    keywords
+  };
+}
 // Simple in-memory cache
 const cache = new Map<string, { data: any; timestamp: number }>();
 
