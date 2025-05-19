@@ -45,12 +45,12 @@ interface RecommendationResponse {
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept-Language",
 };
 
 const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY") || "";
 const MAX_QUERY_LENGTH = 500;
-const PERPLEXITY_TIMEOUT = 15000; // 15 seconds timeout
+const PERPLEXITY_TIMEOUT = 30000; // 30 seconds timeout
 const CACHE_DURATION = 7 * 24 * 60 * 60; // 7 days in seconds
 
 // Simple in-memory cache
@@ -143,8 +143,13 @@ async function queryPerplexity(query: string, filter: string | string[] | null, 
     const filterPrompt = getFilterPrompt(filter, normalizedLanguage);
     const isRecommendation = type === 'recommendation';
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), PERPLEXITY_TIMEOUT);
+    let controller: AbortController | null = new AbortController();
+    const timeoutId = setTimeout(() => {
+      if (controller) {
+        controller.abort();
+        controller = null;
+      }
+    }, PERPLEXITY_TIMEOUT);
 
     const systemPrompt = language === 'zh'
       ? isRecommendation
@@ -268,38 +273,45 @@ Important notes:
 3. Prices must be actual ranges in NTD.
 ${filterPrompt}`;
 
-    const response = await fetch("https://api.perplexity.ai/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
-      },
-      signal: controller.signal,
-      body: JSON.stringify({
-        model: "sonar",
-        temperature: 0.1, // Lower temperature for more focused responses
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt,
-          },
-          {
-            role: "user",
-            content: sanitizedQuery,
-          },
-        ],
-      }),
-    });
-    clearTimeout(timeout);
+    try {
+      const response = await fetch("https://api.perplexity.ai/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: "sonar",
+          temperature: 0.1, // Lower temperature for more focused responses
+          messages: [
+            {
+              role: "system",
+              content: systemPrompt,
+            },
+            {
+              role: "user",
+              content: sanitizedQuery,
+            },
+          ],
+        }),
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`API request failed: ${response.status} ${JSON.stringify(errorData)}`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`API request failed: ${response.status} ${JSON.stringify(errorData)}`);
+      }
+
+      return await response.json();
+    } finally {
+      clearTimeout(timeoutId);
+      controller = null;
     }
-
-    return await response.json();
   } catch (error) {
     console.error("Error in queryPerplexity:", error);
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out after 30 seconds');
+    }
     throw error;
   }
 }
