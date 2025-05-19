@@ -509,6 +509,7 @@ Deno.serve(async (req) => {
     }
 
     const normalizedLanguage = normalizeLanguage(language);
+    const cacheKey = getCacheKey(query, filter, normalizedLanguage, type);
     
     // Try to get from cache first
     const cachedResult = getFromCache(cacheKey);
@@ -532,7 +533,6 @@ Deno.serve(async (req) => {
       type === 'recommendation_v2' ? 'recommendation' : 'analysis'
     );
     const analysis = parseAnalysis(perplexityResponse);
-    const cacheKey = getCacheKey(query, filter, normalizedLanguage, type);
     
     // Cache the result
     setCache(cacheKey, analysis);
