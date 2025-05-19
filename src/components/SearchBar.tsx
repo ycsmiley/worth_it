@@ -8,10 +8,11 @@ import { FilterTag } from '../types/types';
 interface SearchBarProps {
   onSearch: (query: string, filter: FilterTag, isRecommendation: boolean) => void;
   isLoading: boolean;
+  isAuthenticated: boolean;
   initialQuery?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, initialQuery = '' }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, isAuthenticated, initialQuery = '' }) => {
   const { t } = useTranslation();
   const [query, setQuery] = useState(initialQuery);
   const [targetUser, setTargetUser] = useState('');
@@ -65,7 +66,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, initialQuery
   return (
     <div className="w-full max-w-2xl mx-auto">
       <h1 className="text-3xl font-bold text-center mb-2">{t('appName')}</h1>
-      <p className="text-gray-600 text-center mb-4">{t('appDescription')}</p>
+      <p className="text-gray-600 text-center mb-4">
+        {isAuthenticated ? t('appDescription') : t('auth.requiredMessage')}
+      </p>
       
       <div className="flex justify-center mb-4">
         <button
@@ -163,9 +166,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, initialQuery
             className={`absolute right-2 px-4 py-1 rounded-md ${
               isRecommendationMode ? 'bg-purple-500 hover:bg-purple-600' : 'bg-blue-500 hover:bg-blue-600'
             } text-white ${
-              isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-600'
+              isLoading || !isAuthenticated ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-600'
             } transition-colors`}
-            disabled={isLoading || !query.trim()}
+            disabled={isLoading || !query.trim() || !isAuthenticated}
           >
             {isLoading ? t('loading.analyzing') : isRecommendationMode ? t('search.recommend') : t('search.analyze')}
           </button>

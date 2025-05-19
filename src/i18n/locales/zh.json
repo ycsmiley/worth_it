@@ -86,6 +86,7 @@
   "auth": {
     "signIn": "登入",
     "description": "登入以儲存分析記錄並獲得個人化推薦",
+    "requiredMessage": "請先登入以開始分析產品",
     "email": "電子郵件",
     "emailPlaceholder": "請輸入您的電子郵件",
     "continue": "使用電子郵件繼續",

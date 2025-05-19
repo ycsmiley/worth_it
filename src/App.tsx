@@ -25,6 +25,7 @@ function App() {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [analysisHistory, setAnalysisHistory] = useState<HistoryType[]>([]);
   const [retryCount, setRetryCount] = useState(0);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const MAX_RETRIES = 2;
 
   useEffect(() => {
@@ -78,6 +79,11 @@ function App() {
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
 
   const handleSearch = async (query: string, filter: FilterTag = null, isRecommendation = false, currentRetry = 0) => {
+    if (!session?.user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    
     setSearchQuery(query);
     setActiveFilter(filter);
     setIsLoading(true);
@@ -252,11 +258,12 @@ function App() {
       <main className="flex-grow container mx-auto px-4 py-6">
         <div className="max-w-4xl mx-auto mt-4">
           {!searchResult && !recommendationResult && (
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6 relative">
               <SearchBar 
                 onSearch={handleSearch} 
                 isLoading={isLoading}
                 initialQuery={searchQuery}
+                isAuthenticated={!!session?.user}
               />
               
               {isLoading && <LoadingIndicator />}

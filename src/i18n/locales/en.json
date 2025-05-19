@@ -86,6 +86,7 @@
   "auth": {
     "signIn": "Sign in",
     "description": "Sign in to save your analysis history and get personalized recommendations",
+    "requiredMessage": "Please sign in to analyze products",
     "email": "Email address",
     "emailPlaceholder": "Enter your email",
     "continue": "Continue with Email",
