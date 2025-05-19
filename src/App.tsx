@@ -162,24 +162,36 @@ function App() {
       if (result.queryType?.startsWith('recommendation')) {
         setRecommendationResult(result);
         if (session?.user) {
-          await supabase.from('analysis_history').insert({
-            user_id: session.user.id,
-            query,
-            filter,
-            result
-          });
-          fetchAnalysisHistory();
+          try {
+            const { error } = await supabase.from('analysis_history').insert({
+              user_id: session.user.id,
+              query,
+              filter,
+              result
+            });
+            if (error) throw error;
+            await fetchAnalysisHistory();
+            await fetchRequestLimits();
+          } catch (error) {
+            console.error('Error saving analysis history:', error);
+          }
         }
       } else {
         setSearchResult(result);
         if (session?.user) {
-          await supabase.from('analysis_history').insert({
-            user_id: session.user.id,
-            query,
-            filter,
-            result
-          });
-          fetchAnalysisHistory();
+          try {
+            const { error } = await supabase.from('analysis_history').insert({
+              user_id: session.user.id,
+              query,
+              filter,
+              result
+            });
+            if (error) throw error;
+            await fetchAnalysisHistory();
+            await fetchRequestLimits();
+          } catch (error) {
+            console.error('Error saving analysis history:', error);
+          }
         }
       }
     } catch (error) {

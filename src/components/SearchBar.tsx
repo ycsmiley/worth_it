@@ -8,7 +8,6 @@ import { FilterTag } from '../types/types';
 interface SearchBarProps {
   onSearch: (query: string, filter: FilterTag, isRecommendation: boolean) => void;
   isLoading: boolean;
-  isAuthenticated: boolean;
   onAuthRequired: () => void;
   isAuthenticated: boolean;
   initialQuery?: string;
