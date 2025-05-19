@@ -56,10 +56,10 @@ const MAX_QUERY_LENGTH = 500;
 
 function normalizeLanguage(lang: string | undefined): SupportedLanguage {
   if (!lang) return 'zh';
-
-  // Extract base language code (e.g., 'zh-TW' -> 'zh')
-  const baseLanguage = lang.split('-')[0].toLowerCase();
   
+  const baseLanguage = lang.toLowerCase();
+  console.log('Normalizing language:', { input: lang, normalized: baseLanguage });
+
   // Default to 'zh' if not supported
   return SUPPORTED_LANGUAGES.includes(baseLanguage as SupportedLanguage) 
     ? (baseLanguage as SupportedLanguage) 

@@ -98,7 +98,7 @@ function App() {
         body: JSON.stringify({ 
           query, 
           filter,
-          language: i18n.language,
+          language: i18n.language.split('-')[0], // Ensure we only send the base language code
           type: isRecommendation ? 'recommendation_v2' : 'analysis'
         }),
       });
