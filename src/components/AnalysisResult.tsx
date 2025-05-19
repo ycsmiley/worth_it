@@ -122,7 +122,19 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ product, onReset, onSea
           <div className="flex justify-between items-start">
             <div className="flex-grow">
               <h3 className="text-xl font-semibold text-purple-900 mb-2">{comparable.name}</h3>
-              <p className="text-gray-700 mb-3">{comparable.keyDifferenceOrBenefit}</p>
+              <div className="space-y-2">
+                <p className="text-gray-700">{comparable.keyDifferenceOrBenefit}</p>
+                {comparable.uniqueSellingPoint && (
+                  <p className="text-purple-700 font-medium">
+                    {comparable.uniqueSellingPoint}
+                  </p>
+                )}
+                {comparable.targetAudience && (
+                  <p className="text-gray-600 text-sm">
+                    <span className="font-medium">{t('analysis.bestFor')}:</span> {comparable.targetAudience}
+                  </p>
+                )}
+              </div>
               {comparable.approxPriceRange && (
                 <p className="text-sm text-purple-600 font-medium">
                   {t('analysis.priceRange')}: {comparable.approxPriceRange}

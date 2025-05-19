@@ -200,9 +200,11 @@ ${filterPrompt}`
   "tags": ["price", "features", "reviews"],
   "comparableProducts": [
     {
-      "name": "競品名稱",
-      "keyDifferenceOrBenefit": "主要差異或優勢",
-      "approxPriceRange": "價格範圍"
+      "name": "競品完整名稱",
+      "keyDifferenceOrBenefit": "與主要產品的關鍵差異或優勢（至少50字詳細說明）",
+      "approxPriceRange": "實際市場售價範圍（新台幣）",
+      "targetAudience": "最適合哪類使用者",
+      "uniqueSellingPoint": "獨特賣點或特色"
     }
   ]
 }
@@ -260,9 +262,11 @@ Response must be a single, complete, and valid JSON object with the following st
   "tags": ["price", "features", "reviews"],
   "comparableProducts": [
     {
-      "name": "competitor name",
-      "keyDifferenceOrBenefit": "main difference or advantage",
-      "approxPriceRange": "price range"
+      "name": "full competitor product name",
+      "keyDifferenceOrBenefit": "detailed key differences or advantages compared to main product (min 50 words)",
+      "approxPriceRange": "actual market price range in NTD",
+      "targetAudience": "ideal user profile for this alternative",
+      "uniqueSellingPoint": "unique selling proposition or standout feature"
     }
   ]
 }
@@ -455,6 +459,8 @@ function processAnalysisJson(jsonData: any): ProductAnalysis {
           name: String(item.name),
           keyDifferenceOrBenefit: String(item.keyDifferenceOrBenefit),
           approxPriceRange: item.approxPriceRange ? String(item.approxPriceRange) : "N/A",
+          targetAudience: String(item.targetAudience || ''),
+          uniqueSellingPoint: String(item.uniqueSellingPoint || '')
         });
       } else {
         console.warn("Skipping invalid comparable product item:", item);

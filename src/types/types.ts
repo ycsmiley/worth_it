@@ -17,6 +17,8 @@ export interface Product {
     name: string;
     keyDifferenceOrBenefit: string;
     approxPriceRange?: string;
+    targetAudience?: string;
+    uniqueSellingPoint?: string;
   }[];
 }
 
