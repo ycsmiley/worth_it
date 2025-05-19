@@ -323,7 +323,12 @@ function extractJsonFromText(text: string): string | null {
 function parseAnalysis(response: PerplexityResponse): ProductAnalysis | RecommendationResponse {
   try {
     const content = response.choices[0].message.content;
-    console.log("Raw response content:", content);
+    console.log("Raw response content:", {
+      length: content.length,
+      preview: content.slice(0, 200),
+      hasJsonStart: content.includes('{'),
+      hasJsonEnd: content.includes('}')
+    });
 
     let jsonData: any;
     let jsonString: string | null = null;
@@ -338,7 +343,11 @@ function parseAnalysis(response: PerplexityResponse): ProductAnalysis | Recommen
       // Second try: Extract JSON from text
       jsonString = extractJsonFromText(content);
       if (!jsonString) {
-        console.error("No valid JSON structure found in response");
+        console.error("No valid JSON structure found in response:", {
+          contentLength: content.length,
+          contentPreview: content.slice(0, 100),
+          contentType: typeof content
+        });
         throw new Error("Failed to extract valid JSON from AI response");
       }
 
@@ -484,14 +493,16 @@ Deno.serve(async (req) => {
     
     const errorResponse = {
       error: "Failed to analyze product",
-      details: error.message,
+      details: error.message || "An unexpected error occurred",
       type: error.name,
+      timestamp: new Date().toISOString()
     };
 
     const status = 
       error.message.includes("API key") ? 500 :
       error.message.includes("Rate limit") ? 429 :
-      error.message.includes("unauthorized") ? 401 : 400;
+      error.message.includes("unauthorized") ? 401 :
+      error.message.includes("JSON") ? 422 : 400;
 
     return new Response(
       JSON.stringify(errorResponse),
