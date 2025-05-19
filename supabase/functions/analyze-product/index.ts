@@ -53,6 +53,40 @@ const corsHeaders = {
 
 const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY") || "";
 const MAX_QUERY_LENGTH = 500;
+const PERPLEXITY_TIMEOUT = 15000; // 15 seconds timeout
+const CACHE_DURATION = 24 * 60 * 60; // 24 hours in seconds
+
+// Simple in-memory cache
+const cache = new Map<string, { data: any; timestamp: number }>();
+
+function getCacheKey(query: string, filter: string | string[] | null, language: string, type: string): string {
+  return `${query}:${filter}:${language}:${type}`;
+}
+
+function getFromCache(key: string): any | null {
+  const cached = cache.get(key);
+  if (!cached) return null;
+  
+  const now = Date.now();
+  if (now - cached.timestamp > CACHE_DURATION * 1000) {
+    cache.delete(key);
+    return null;
+  }
+  
+  return cached.data;
+}
+
+function setCache(key: string, data: any): void {
+  cache.set(key, { data, timestamp: Date.now() });
+  
+  // Clean up old entries
+  const now = Date.now();
+  for (const [k, v] of cache.entries()) {
+    if (now - v.timestamp > CACHE_DURATION * 1000) {
+      cache.delete(k);
+    }
+  }
+}
 
 function normalizeLanguage(lang: string | undefined): SupportedLanguage {
   if (!lang) return 'zh';
@@ -110,6 +144,9 @@ async function queryPerplexity(query: string, filter: string | string[] | null, 
     
     const filterPrompt = getFilterPrompt(filter, normalizedLanguage);
     const isRecommendation = type === 'recommendation';
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), PERPLEXITY_TIMEOUT);
 
     const systemPrompt = normalizedLanguage === 'zh'
       ? isRecommendation
@@ -239,8 +276,10 @@ ${filterPrompt}`;
         "Content-Type": "application/json",
         Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
       },
+      signal: controller.signal,
       body: JSON.stringify({
         model: "sonar",
+        temperature: 0.1, // Lower temperature for more focused responses
         messages: [
           {
             role: "system",
@@ -253,6 +292,7 @@ ${filterPrompt}`;
         ],
       }),
     });
+    clearTimeout(timeout);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -471,6 +511,23 @@ Deno.serve(async (req) => {
     }
 
     const normalizedLanguage = normalizeLanguage(language);
+    const cacheKey = getCacheKey(query, filter, normalizedLanguage, type);
+    
+    // Try to get from cache first
+    const cachedResult = getFromCache(cacheKey);
+    if (cachedResult) {
+      console.log("Cache hit for query:", query);
+      return new Response(
+        JSON.stringify(cachedResult),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...corsHeaders,
+          },
+        }
+      );
+    }
+
     const perplexityResponse = await queryPerplexity(
       query, 
       filter, 
@@ -478,6 +535,9 @@ Deno.serve(async (req) => {
       type === 'recommendation_v2' ? 'recommendation' : 'analysis'
     );
     const analysis = parseAnalysis(perplexityResponse);
+    
+    // Cache the result
+    setCache(cacheKey, analysis);
 
     return new Response(
       JSON.stringify(analysis),
