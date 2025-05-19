@@ -23,8 +23,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: import.meta.env.VITE_AUTH_REDIRECT_URL,
-          shouldCreateUser: true,
+          emailRedirectTo: import.meta.env.VITE_AUTH_REDIRECT_URL || `${window.location.origin}`,
         },
       });
 
@@ -84,11 +83,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <div
               className={`p-3 rounded-md mb-4 ${
                 message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-              } text-sm`}
+              }`}
             >
-              {message.type === 'error' && message.text.includes('whitelist') 
-                ? t('auth.notWhitelisted')
-                : message.text}
+              {message.text}
             </div>
           )}
 
