@@ -94,11 +94,12 @@ function App() {
         headers: {
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
+          'Accept-Language': i18n.language
         },
         body: JSON.stringify({ 
           query, 
           filter,
-          language: i18n.language.split('-')[0], // Ensure we only send the base language code
+          language: i18n.language.split('-')[0].toLowerCase(), // Ensure we only send the base language code
           type: isRecommendation ? 'recommendation_v2' : 'analysis'
         }),
       });

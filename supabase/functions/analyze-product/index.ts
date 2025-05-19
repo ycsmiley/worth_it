@@ -1,8 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.39.7";
 
-const SUPPORTED_LANGUAGES = ['zh', 'en'] as const;
-type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
-
 interface PerplexityResponse {
   choices: Array<{
     message: {
@@ -54,7 +51,7 @@ const corsHeaders = {
 const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY") || "";
 const MAX_QUERY_LENGTH = 500;
 const PERPLEXITY_TIMEOUT = 15000; // 15 seconds timeout
-const CACHE_DURATION = 24 * 60 * 60; // 24 hours in seconds
+const CACHE_DURATION = 7 * 24 * 60 * 60; // 7 days in seconds
 
 // Simple in-memory cache
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -95,8 +92,6 @@ function normalizeLanguage(lang: string | undefined): SupportedLanguage {
   if (!lang) return 'zh';
   
   const baseLanguage = lang.toLowerCase();
-  console.log('Normalizing language:', { input: lang, normalized: baseLanguage });
-  console.log('Normalizing language:', { input: lang, normalized: baseLanguage });
 
   // Default to 'zh' if not supported
   return SUPPORTED_LANGUAGES.includes(baseLanguage as SupportedLanguage) 
@@ -151,7 +146,7 @@ async function queryPerplexity(query: string, filter: string | string[] | null, 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), PERPLEXITY_TIMEOUT);
 
-    const systemPrompt = normalizedLanguage === 'zh'
+    const systemPrompt = language === 'zh'
       ? isRecommendation
         ? `你是一位專業的台灣市場產品推薦專家。你的任務是根據使用者的需求，推薦2-3款最適合的產品選擇。
 
@@ -492,7 +487,6 @@ Deno.serve(async (req) => {
     console.log("Received request:", { 
       query: typeof query === 'string' ? query : 'Invalid query',
       filter: filter || 'none',
-      filter: filter || 'none',
       language: language || 'default',
       type: type || 'analysis',
       queryLength: typeof query === 'string' ? query.length : 0
@@ -515,7 +509,6 @@ Deno.serve(async (req) => {
     }
 
     const normalizedLanguage = normalizeLanguage(language);
-    const cacheKey = getCacheKey(query, filter, normalizedLanguage, type);
     
     // Try to get from cache first
     const cachedResult = getFromCache(cacheKey);
@@ -532,9 +525,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    const normalizedLanguage = normalizeLanguage(language);
-    console.log('Using normalized language:', normalizedLanguage);
-
     const perplexityResponse = await queryPerplexity(
       query, 
       filter, 
@@ -542,6 +532,7 @@ Deno.serve(async (req) => {
       type === 'recommendation_v2' ? 'recommendation' : 'analysis'
     );
     const analysis = parseAnalysis(perplexityResponse);
+    const cacheKey = getCacheKey(query, filter, normalizedLanguage, type);
     
     // Cache the result
     setCache(cacheKey, analysis);
