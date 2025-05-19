@@ -116,77 +116,78 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ product, onReset, onSea
   );
 
   const renderComparablesTab = () => (
-    <div className="space-y-4 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn">
+      <div className="text-center text-gray-600">
+        <h3 className="text-xl font-semibold mb-2">{t('analysis.comparingWith', { product: product.name })}</h3>
+        <p className="text-sm">{t('analysis.comparisonHint')}</p>
+      </div>
       {product.comparableProducts && product.comparableProducts.map((comparable, index) => (
-        <div key={index} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border border-gray-100">
-          <div className="flex justify-between items-start">
-            <div className="flex-grow">
-              <h3 className="text-xl font-semibold text-purple-900 mb-2">{comparable.name}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div className="space-y-3">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-500 mb-1">{t('analysis.keyDifferences')}</h4>
-                    <p className="text-gray-700">{comparable.keyDifferenceOrBenefit}</p>
-                  </div>
-                  {comparable.uniqueSellingPoint && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 mb-1">{t('analysis.uniqueFeatures')}</h4>
-                      <p className="text-purple-700">{comparable.uniqueSellingPoint}</p>
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-3">
-                  {comparable.targetAudience && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 mb-1">{t('analysis.bestFor')}</h4>
-                      <p className="text-gray-700">{comparable.targetAudience}</p>
-                    </div>
-                  )}
-                  {comparable.approxPriceRange && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 mb-1">{t('analysis.priceRange')}</h4>
-                      <p className="text-purple-700 font-medium">{comparable.approxPriceRange}</p>
-                    </div>
-                  )}
-                </div>
+        <div key={index} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-gray-100">
+          <div className="flex flex-col space-y-4">
+            {/* Header with product name and action button */}
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-xl font-semibold text-purple-900">{comparable.name}</h3>
+                {comparable.approxPriceRange && (
+                  <p className="text-sm text-purple-600 mt-1 font-medium">{comparable.approxPriceRange}</p>
+                )}
+              </div>
+              <button
+                onClick={() => handleComparableClick(comparable.name)}
+                className="flex items-center px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition-colors shadow-sm"
+              >
+                <Search className="h-4 w-4 mr-1" />
+                <span>{t('analysis.analyze')}</span>
+              </button>
+            </div>
+            
+            {/* Key differences section */}
+            <div className="bg-purple-50 rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <Scale className="h-5 w-5 text-purple-600 mr-2" />
+                <h4 className="font-medium text-purple-900">{t('analysis.keyDifferences')}</h4>
+              </div>
+              <p className="text-gray-700">{comparable.keyDifferenceOrBenefit}</p>
+            </div>
+            
+            {/* Comparison grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Unique features */}
+              <div className="bg-green-50 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-green-900 mb-2">{t('analysis.uniqueFeatures')}</h4>
+                <p className="text-green-800">{comparable.uniqueSellingPoint}</p>
+              </div>
+              
+              {/* Target audience */}
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-blue-900 mb-2">{t('analysis.bestFor')}</h4>
+                <p className="text-blue-800">{comparable.targetAudience}</p>
               </div>
             </div>
-            <button
-              onClick={() => handleComparableClick(comparable.name)}
-              className="ml-4 flex items-center px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition-colors shadow-sm"
-            >
-              <Search className="h-4 w-4 mr-1" />
-              <span className="text-sm">{t('analysis.analyze')}</span>
-            </button>
-          </div>
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="flex items-center space-x-2">
-              <Scale className="h-4 w-4 text-gray-400" />
-              <h4 className="text-sm font-medium text-gray-500">{t('analysis.comparison')}</h4>
-            </div>
-            <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-purple-50 rounded-lg p-3">
-                <h5 className="text-sm font-medium text-purple-900 mb-1">{product.name}</h5>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  {product.pros.slice(0, 2).map((pro, idx) => (
-                    <li key={idx} className="flex items-start">
-                      <span className="text-green-600 mr-2">✓</span>
-                      <span>{pro}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-3">
-                <h5 className="text-sm font-medium text-gray-900 mb-1">{comparable.name}</h5>
-                <div className="text-sm text-gray-600">
-                  {comparable.uniqueSellingPoint && (
-                    <p className="flex items-start">
-                      <span className="text-purple-600 mr-2">★</span>
-                      <span>{comparable.uniqueSellingPoint}</span>
-                    </p>
-                  )}
-                </div>
-              </div>
+            
+            {/* Direct comparison table */}
+            <div className="mt-2 overflow-hidden rounded-lg border border-gray-200">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-4 py-2 text-left font-medium text-gray-500">{t('analysis.feature')}</th>
+                    <th className="px-4 py-2 text-left font-medium text-purple-700">{product.name}</th>
+                    <th className="px-4 py-2 text-left font-medium text-blue-700">{comparable.name}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  <tr>
+                    <td className="px-4 py-2 text-gray-500">{t('analysis.priceRange')}</td>
+                    <td className="px-4 py-2">{product.priceRange}</td>
+                    <td className="px-4 py-2">{comparable.approxPriceRange}</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 text-gray-500">{t('analysis.targetAudience')}</td>
+                    <td className="px-4 py-2">{product.bestFor[0]}</td>
+                    <td className="px-4 py-2">{comparable.targetAudience}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

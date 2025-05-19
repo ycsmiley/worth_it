@@ -63,7 +63,13 @@
     "priceRange": "價格範圍",
     "backToSearch": "返回搜尋",
     "details": "產品詳情",
-    "analyze": "分析此產品"
+    "analyze": "分析此產品",
+    "comparingWith": "與 {product} 的比較",
+    "comparisonHint": "以下是這些產品在關鍵特性上的比較",
+    "feature": "特性",
+    "targetAudience": "目標使用者",
+    "keyDifferences": "主要差異",
+    "uniqueFeatures": "獨特特色"
   },
   "error": {
     "analysis": "產品分析失敗。",

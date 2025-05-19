@@ -63,7 +63,13 @@
     "priceRange": "Price Range",
     "backToSearch": "Back to Search",
     "details": "Product Details",
-    "analyze": "Analyze This"
+    "analyze": "Analyze This",
+    "comparingWith": "Comparing with {product}",
+    "comparisonHint": "Here's how these products compare in key aspects",
+    "feature": "Feature",
+    "targetAudience": "Target Audience",
+    "keyDifferences": "Key Differences",
+    "uniqueFeatures": "Unique Features"
   },
   "error": {
     "analysis": "Failed to analyze product.",
